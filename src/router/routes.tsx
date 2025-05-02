@@ -10,6 +10,8 @@ import EditMerchant from '../components/Admin/Merchant/Edit';
 import MerchantData from '../pages/Admin/merchant/MerchantData';
 import AdminProtected from '../components/Protected/AdminProtected';
 import Login from '../pages/Login';
+import OtpVerification from '../pages/OtpVerification';
+import ProtectedRoute from '../components/Protected/ProtectedRoute';
 const KnowledgeBase = lazy(() => import('../pages/Pages/KnowledgeBase'));
 const ContactUsBoxed = lazy(() => import('../pages/Pages/ContactUsBoxed'));
 const ContactUsCover = lazy(() => import('../pages/Pages/ContactUsCover'));
@@ -22,6 +24,7 @@ const ERROR503 = lazy(() => import('../pages/Pages/Error503'));
 const Maintenence = lazy(() => import('../pages/Pages/Maintenence'));
 const About = lazy(() => import('../pages/About'));
 const Error = lazy(() => import('../components/Error'));
+
 
 const routes = [
     // dashboard
@@ -151,6 +154,16 @@ const routes = [
         element: <Login />,
         layout: 'blank',
     },
+    {
+        path: '/otp-verification',
+        element: (
+            <ProtectedRoute>
+                <OtpVerification />
+            </ProtectedRoute>
+        ),
+        layout: 'blank',
+    },
+
     {
         path: '/about',
         element: <About />,

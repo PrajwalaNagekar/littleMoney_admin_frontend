@@ -9,7 +9,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { showMessage } from '../components/common/ShowMessage';
 import Logo from '../assets/logo/logo.png';
-
+import { emailVerify } from '../api/index'
 interface FormValues {
     email: string;
     password: string;
@@ -34,22 +34,35 @@ const Login = () => {
         validationSchema: loginSchema,
         enableReinitialize: true,
 
-        onSubmit: (values) => {
-            if (values.email == 'admin@littlemoney.co.in') {
-                if (values.password == 'Admin@#6246') {
+        onSubmit: async (values) => {
+            console.log("🚀 ~ Login ~ values:", values)
+
+            try {
+                const result = await emailVerify({
+                    email: values.email,
+                    password: values.password,
+                });
+
+                if (result && !result.error) {
                     dispatch(
                         setUser({
                             auth: true,
-                            userType: 'admin', // ✅ Set selected user type
+                            userType: 'admin', // You can adjust based on actual userType later
                         })
                     );
-                    showMessage('Loged in successfully');
-                    navigate('/');
+
+                    // // Store email/phoneHint for use on OTP page
+                    // localStorage.setItem('phoneHint', result.phoneHint);
+                    // localStorage.setItem('email', result.email);
+
+                    showMessage('OTP sent to registered mobile number');
+                    navigate('/otp-verification');
                 } else {
-                    showMessage('invalid password.', 'error');
+                    showMessage(result.message || 'Authentication failed', 'error');
                 }
-            } else {
-                showMessage('invalid email.', 'error');
+            } catch (error) {
+                showMessage('Unexpected error occurred', 'error');
+                console.error("Login error:", error);
             }
         },
     });
@@ -103,7 +116,7 @@ const Login = () => {
                                     {formik.touched.password && formik.errors.password ? <div className="text-danger">{formik.errors.password}</div> : null}
                                 </div>
                                 <button type="submit" className="btn btn-gradient !mt-6 w-full border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]">
-                                    Sign in
+                                    Send OTP
                                 </button>
                             </form>
                         </div>
