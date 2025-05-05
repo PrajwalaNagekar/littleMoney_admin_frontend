@@ -3,6 +3,9 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
     userType: '',
     auth: false,
+    phoneNumber: '',
+    phoneHint: '',
+    email: '',
 };
 
 export const userConfigSlice = createSlice({
@@ -10,9 +13,12 @@ export const userConfigSlice = createSlice({
     initialState,
     reducers: {
         setUser: (state, action) => {
-            const { userType, auth } = action.payload;
+            const { userType, auth, phoneNumber, phoneHint, email } = action.payload;
             state.userType = userType;
             state.auth = auth;
+            state.phoneNumber = phoneNumber;
+            state.phoneHint = phoneHint;
+            state.email = email;
         },
         resetUser: () => initialState,
     },

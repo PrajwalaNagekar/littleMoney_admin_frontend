@@ -8,6 +8,7 @@ import { IRootState } from '../../store';
 import { useState, useEffect } from 'react';
 import IconCaretsDown from '../Icon/IconCaretsDown';
 import IconCaretDown from '../Icon/IconCaretDown';
+import { RiMoneyRupeeCircleLine } from "react-icons/ri";
 import { FiBook, FiBox, FiCreditCard, FiDollarSign, FiFileText, FiGift, FiGrid, FiPlusSquare, FiSettings, FiShoppingBag, FiShoppingCart, FiSquare, FiUsers, FiVideo } from 'react-icons/fi';
 import Logo from '../../assets/logo/LittleLogo_01.png';
 
@@ -104,6 +105,17 @@ const Sidebar = () => {
                                             </ul>
                                         </AnimateHeight>
                                     </li>
+                                    <li className="nav-item">
+                                        <NavLink to="/admin/loans" className="group">
+                                            <div className="flex items-center gap-2">
+                                                {/* <FiSettings className="group-hover:!text-primary shrink-0" /> */}
+                                                <RiMoneyRupeeCircleLine className="group-hover:!text-primary shrink-0" />
+
+                                                <span>{t('Loans')}</span>
+                                            </div>
+                                        </NavLink>
+
+                                    </li>
                                     {/* Orders & Compliance */}
                                     <li className="nav-item">
                                         <NavLink to="/admin/orders" className="group">
@@ -131,6 +143,7 @@ const Sidebar = () => {
                                             </div>
                                         </NavLink>
                                     </li>
+
                                 </ul>
                             </li>
                         </ul>

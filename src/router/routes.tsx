@@ -12,6 +12,8 @@ import AdminProtected from '../components/Protected/AdminProtected';
 import Login from '../pages/Login';
 import OtpVerification from '../pages/OtpVerification';
 import ProtectedRoute from '../components/Protected/ProtectedRoute';
+import Loans from '../pages/Admin/Loans';
+import Offers from '../pages/Admin/Offers';
 const KnowledgeBase = lazy(() => import('../pages/Pages/KnowledgeBase'));
 const ContactUsBoxed = lazy(() => import('../pages/Pages/ContactUsBoxed'));
 const ContactUsCover = lazy(() => import('../pages/Pages/ContactUsCover'));
@@ -100,6 +102,31 @@ const routes = [
             </AdminProtected>
         ),
     },
+    {
+        path: '/admin/loans',
+        element: (
+            <AdminProtected>
+                <Loans />
+            </AdminProtected>
+        ),
+    },
+    {
+        path: '/admin/loans/offers',
+        element: (
+            <AdminProtected>
+                <Offers />
+            </AdminProtected>
+        ),
+    },
+    {
+        path: '/admin/loans/offers/:id',
+        element: (
+            <AdminProtected>
+                <Loans />
+            </AdminProtected>
+        ),
+    },
+
     // pages
     {
         path: '/pages/knowledge-base',

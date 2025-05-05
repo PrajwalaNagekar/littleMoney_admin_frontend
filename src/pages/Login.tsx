@@ -10,6 +10,7 @@ import * as Yup from 'yup';
 import { showMessage } from '../components/common/ShowMessage';
 import Logo from '../assets/logo/logo.png';
 import { emailVerify } from '../api/index'
+import { log } from 'console';
 interface FormValues {
     email: string;
     password: string;
@@ -42,21 +43,25 @@ const Login = () => {
                     email: values.email,
                     password: values.password,
                 });
+                console.log("🚀 ~ onSubmit: ~ result:", result)
+                console.log("🚀 ~ onSubmit: ~ phno:", result.phoneNumber)
+
 
                 if (result && !result.error) {
-                    dispatch(
-                        setUser({
-                            auth: true,
-                            userType: 'admin', // You can adjust based on actual userType later
-                        })
-                    );
+                    dispatch(setUser({
+                        userType: 'admin',
+                        auth: true,
+                        phoneNumber: result.phoneNumber,
+                        phoneHint: result.phoneHint,
+                        email: result.email,
+                    }));
 
                     // // Store email/phoneHint for use on OTP page
                     // localStorage.setItem('phoneHint', result.phoneHint);
                     // localStorage.setItem('email', result.email);
 
                     showMessage('OTP sent to registered mobile number');
-                    navigate('/otp-verification');
+                    navigate('/otp-verification', { state: { phoneNumber: result.phoneNumber } });
                 } else {
                     showMessage(result.message || 'Authentication failed', 'error');
                 }
