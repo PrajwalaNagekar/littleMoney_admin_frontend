@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getAllDetails } from '../../api/index';
+import { getAllDetails, getSummary } from '../../api/index';
 import DataTableComponent from '../../components/common/DataTableComponent';
 
-// ✅ Mapping for business registration types
 const businessRegistrationTypeMap: Record<number, string> = {
     1: "GST",
     2: "Shop & Establishment",
@@ -15,8 +14,8 @@ const businessRegistrationTypeMap: Record<number, string> = {
     8: "No Business Proof"
 };
 
-// ✅ Define TypeScript interface
 interface LoanRow {
+    id: string;
     leadId: string;
     loanType: 'Personal Loan' | 'Business Loan';
     firstName?: string;
@@ -28,11 +27,16 @@ interface LoanRow {
     employerName?: string;
     businessRegistrationType?: number;
     pan?: string;
+    referal?: string,
     pincode?: string;
     loginCount?: number;
     lenderName?: string;
     createdAt?: string;
     updatedAt?: string;
+    offersTotal?: number;
+    maxLoanAmount?: string;
+    minMPR?: number;
+    maxMPR?: number;
 }
 
 const Loans = () => {
@@ -40,9 +44,8 @@ const Loans = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    // ✅ Define table columns
     const columns = [
-        
+        { accessor: 'serialNo', title: 'S.No.' },
         { accessor: 'loanType', title: 'Type of Loan' },
         { accessor: 'leadId', title: 'Lead ID', sortable: true },
         { accessor: 'firstName', title: 'First Name' },
@@ -61,9 +64,14 @@ const Loans = () => {
                     : '-'
         },
         { accessor: 'pan', title: 'PAN' },
+        { accessor: 'referal', title: 'Referal Code' },
         { accessor: 'pincode', title: 'Pincode' },
         { accessor: 'loginCount', title: 'Login Count' },
         { accessor: 'lenderName', title: 'Lender Name' },
+        { accessor: 'offersTotal', title: 'Total Offers' },
+        { accessor: 'maxLoanAmount', title: 'Max Loan Amount' },
+        { accessor: 'minMPR', title: 'Min MPR' },
+        { accessor: 'maxMPR', title: 'Max MPR' },
         {
             accessor: 'createdAt',
             title: 'Created At',
@@ -79,10 +87,11 @@ const Loans = () => {
         {
             accessor: 'actions',
             title: 'Actions',
-            render: (row: LoanRow) => (
+            render: ({ row, serialNo }: { row: LoanRow, serialNo: number }) => (
                 <Link
-                    to={`/loans/offers`}
-                    className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition"
+                    to={`/admin/loans/${serialNo}`}
+                    className="btn btn-primary gap-2"
+
                 >
                     View Offers
                 </Link>
@@ -90,26 +99,43 @@ const Loans = () => {
         }
     ];
 
-    // ✅ Fetch and transform data
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await getAllDetails();
+                console.log("🚀 ~ fetchData ~ response:", response)
                 const rawData = response?.data;
 
                 if (!Array.isArray(rawData)) throw new Error("Invalid response");
 
                 const normalizedData: LoanRow[] = [];
 
-                rawData.forEach(item => {
+                for (const item of rawData) {
                     const leadId = item.leadId;
                     const loginCount = item.loginCountRef?.count ?? 0;
+                    console.log("🚀 ~ fetchData ~ leadId:", leadId)
                     const lenderName = item.appliedCustomersRef?.lenderName ?? '';
                     const createdAt = item.createdAt;
                     const updatedAt = item.updatedAt;
+                    if (leadId) {
+                        localStorage.setItem('leadId', leadId); // Store the leadId in localStorage
+                    }
+                    // Fetch summary
+                    let offersTotal, maxLoanAmount, minMPR, maxMPR;
+                    try {
+                        const summaryResponse = await getSummary(leadId); // Assuming getSummary accepts leadId as param
+                        const summary = summaryResponse?.data?.summary;
+                        offersTotal = summary?.offersTotal;
+                        maxLoanAmount = summary?.maxLoanAmount;
+                        minMPR = summary?.minMPR;
+                        maxMPR = summary?.maxMPR;
+                    } catch (e) {
+                        console.warn(`Failed to fetch summary for leadId: ${leadId}`);
+                    }
 
                     if (item.personalLoanRef) {
                         normalizedData.push({
+                            id: leadId,
                             leadId,
                             loanType: 'Personal Loan',
                             firstName: item.personalLoanRef.firstName,
@@ -119,15 +145,21 @@ const Loans = () => {
                             mobileNumber: item.personalLoanRef.mobileNumber,
                             monthlyIncome: item.personalLoanRef.monthlyIncome,
                             employerName: item.personalLoanRef.employerName,
+                            referal: item.personalLoanRef.referal,
                             loginCount,
                             lenderName,
                             createdAt,
                             updatedAt,
+                            offersTotal,
+                            maxLoanAmount,
+                            minMPR,
+                            maxMPR
                         });
                     }
 
                     if (item.businessLoanRef) {
                         normalizedData.push({
+                            id: leadId,
                             leadId,
                             loanType: 'Business Loan',
                             firstName: item.businessLoanRef.firstName,
@@ -138,16 +170,27 @@ const Loans = () => {
                             monthlyIncome: item.businessLoanRef.monthlyIncome,
                             businessRegistrationType: item.businessLoanRef.businessRegistrationType,
                             pan: item.businessLoanRef.pan,
+                            referal: item.businessLoanRef.referal,
                             pincode: item.businessLoanRef.pincode,
                             loginCount,
                             lenderName,
                             createdAt,
                             updatedAt,
+                            offersTotal,
+                            maxLoanAmount,
+                            minMPR,
+                            maxMPR
                         });
                     }
-                });
+                }
 
-                setLoanData(normalizedData);
+                // Add Serial Number to each row
+                const dataWithSerialNo = normalizedData.map((row, index) => ({
+                    ...row,
+                    serialNo: index + 1
+                }));
+
+                setLoanData(dataWithSerialNo);
             } catch (err) {
                 console.error(err);
                 setError('Failed to fetch loan data');
@@ -178,10 +221,7 @@ const Loans = () => {
                 ) : error ? (
                     <p className="text-red-500">{error}</p>
                 ) : (
-                    <DataTableComponent
-                        data={loanData}
-                        columns={columns}
-                    />
+                    <DataTableComponent data={loanData} columns={columns} />
                 )}
             </div>
         </div>

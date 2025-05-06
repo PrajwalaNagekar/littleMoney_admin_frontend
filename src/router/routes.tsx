@@ -111,21 +111,21 @@ const routes = [
         ),
     },
     {
-        path: '/admin/loans/offers',
+        path: '/admin/loans/:id',
         element: (
             <AdminProtected>
                 <Offers />
             </AdminProtected>
         ),
     },
-    {
-        path: '/admin/loans/offers/:id',
-        element: (
-            <AdminProtected>
-                <Loans />
-            </AdminProtected>
-        ),
-    },
+    // {
+    //     path: '/admin/loans/offers/:id',
+    //     element: (
+    //         <AdminProtected>
+    //             <Loans />
+    //         </AdminProtected>
+    //     ),
+    // },
 
     // pages
     {
